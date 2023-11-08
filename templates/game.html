@@ -9,15 +9,20 @@
 <body>
 <h1>Tic Tac Toe</h1>
 <div id="board">
-{% for row in range(3) %}
-<div class="row">
-{% for col in range(3) %}
-<div class="cell" data-row="{{ row }}" data-col="{{ col }}">{{ board[row][col] }}</div>
-{% endfor %}
+<div class="cell" data-row="0" data-col="0"></div>
+<div class="cell" data-row="0" data-col="1"></div>
+<div class="cell" data-row="0" data-col="2"></div>
+<div class="cell" data-row="1" data-col="0"></div>
+<div class="cell" data-row="1" data-col="1"></div>
+<div class="cell" data-row="1" data-col="2"></div>
+<div class="cell" data-row="2" data-col="0"></div>
+<div class="cell" data-row="2" data-col="1"></div>
+<div class="cell" data-row="2" data-col="2"></div>
 </div>
-{% endfor %}
-</div>
-<script src="script.js"></script>
+<form action="/move" method="post">
+<input type="hidden" name="move" value="">
+<input type="submit" value="Make Move">
+</form>
 </body>
 </html>
 
