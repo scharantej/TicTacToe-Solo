@@ -4,77 +4,17 @@
 <html>
 <head>
 <title>Tic Tac Toe</title>
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
 <h1>Tic Tac Toe</h1>
 <div id="winner">
 <p>The winner is {{ winner }}!</p>
-<button id="start-game">Start a new game</button>
 </div>
-<script src="script.js"></script>
+<div id="controls">
+<button id="new-game">New Game</button>
+</div>
+<script src="/static/script.js"></script>
 </body>
 </html>
-
-
-## CSS
-
-css
-body {
-font-family: sans-serif;
-}
-
-h1 {
-text-align: center;
-}
-
-#board {
-display: flex;
-flex-wrap: wrap;
-justify-content: center;
-}
-
-.square {
-width: 100px;
-height: 100px;
-border: 1px solid black;
-text-align: center;
-font-size: 50px;
-}
-
-#controls {
-text-align: center;
-}
-
-button {
-padding: 10px 20px;
-background-color: #000;
-color: #fff;
-border: 1px solid #000;
-cursor: pointer;
-}
-
-
-## JavaScript
-
-javascript
-const startGameButton = document.getElementById("start-game");
-const makeMoveButton = document.getElementById("make-move");
-const winnerDiv = document.getElementById("winner");
-
-startGameButton.addEventListener("click", () => {
-// Start a new game.
-location.href = "/game";
-});
-
-makeMoveButton.addEventListener("click", () => {
-// Make a move.
-const move = document.getElementById("move").value;
-location.href = `/game?move=${move}`;
-});
-
-winnerDiv.addEventListener("click", () => {
-// Start a new game.
-location.href = "/";
-});
 
