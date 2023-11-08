@@ -28,124 +28,129 @@ current_player = 'X'
 # Define the route for the home page
 @app.route('/')
 def index():
+    # Reset the game board
+    for i in range(3):
+        for j in range(3):
+            board[i][j] = '-'
+
+    # Reset the game state
+    game_state = 'in progress'
+
+    # Reset the current player
+    current_player = 'X'
+
+    # Return the home page
     return render_template('index.html')
 
 
 # Define the route for the game page
-@app.route('/game', methods=['GET', 'POST'])
+@app.route('/game')
 def game():
-    global board, winning_combinations, computer_move, game_state, current_player
+    # Get the player's move
+    player_move = request.args.get('move')
 
-    # Handle the GET request
-    if request.method == 'GET':
-        return render_template('game.html', board=board, game_state=game_state, current_player=current_player)
+    # Update the game board
+    board[int(player_move[0])][int(player_move[1])] = current_player
 
-    # Handle the POST request
-    if request.method == 'POST':
-        # Get the player's move
-        player_move = request.form.get('move')
+    # Check if the player has won
+    if check_winner(current_player):
+        game_state = 'won'
+        return render_template('winner.html', winner=current_player)
 
-        # Update the game board
-        board[int(player_move[0])][int(player_move[1])] = current_player
+    # Check if the game is a draw
+    if check_draw():
+        game_state = 'draw'
+        return render_template('winner.html', winner='Draw')
 
-        # Check if the player has won
-        if any(all(board[i][j] == current_player for j in winning_combinations[i]) for i in range(len(winning_combinations))):
-            game_state = 'won'
-            return render_template('game.html', board=board, game_state=game_state, current_player=current_player)
+    # Update the current player
+    current_player = 'O' if current_player == 'X' else 'X'
 
-        # Check if the game is a draw
-        if all('-' not in row for row in board):
-            game_state = 'draw'
-            return render_template('game.html', board=board, game_state=game_state, current_player=current_player)
+    # Get the computer's move
+    computer_move = get_computer_move()
 
-        # Update the current player
-        current_player = 'O' if current_player == 'X' else 'X'
+    # Update the game board
+    board[int(computer_move[0])][int(computer_move[1])] = current_player
 
-        # Get the computer's move
-        computer_move = get_computer_move(board)
+    # Check if the computer has won
+    if check_winner(current_player):
+        game_state = 'won'
+        return render_template('winner.html', winner=current_player)
 
-        # Update the game board
-        board[int(computer_move[0])][int(computer_move[1])] = current_player
+    # Check if the game is a draw
+    if check_draw():
+        game_state = 'draw'
+        return render_template('winner.html', winner='Draw')
 
-        # Check if the computer has won
-        if any(all(board[i][j] == current_player for j in winning_combinations[i]) for i in range(len(winning_combinations))):
-            game_state = 'lost'
-            return render_template('game.html', board=board, game_state=game_state, current_player=current_player)
-
-        # Check if the game is a draw
-        if all('-' not in row for row in board):
-            game_state = 'draw'
-            return render_template('game.html', board=board, game_state=game_state, current_player=current_player)
-
-        # Update the current player
-        current_player = 'X' if current_player == 'O' else 'O'
-
-        return render_template('game.html', board=board, game_state=game_state, current_player=current_player)
+    # Return the game page
+    return render_template('game.html', board=board, current_player=current_player)
 
 
-# Define the route for the results page
-@app.route('/results')
-def results():
-    return render_template('results.html', game_state=game_state)
+# Define the route for the winner page
+@app.route('/winner')
+def winner():
+    # Return the winner page
+    return render_template('winner.html', winner=winner)
 
 
-# Define the route for the reset page
+# Define the route for resetting the game
 @app.route('/reset')
 def reset():
-    global board, game_state, current_player
-    board = [['-', '-', '-'],
-             ['-', '-', '-'],
-             ['-', '-', '-']]
+    # Reset the game board
+    for i in range(3):
+        for j in range(3):
+            board[i][j] = '-'
+
+    # Reset the game state
     game_state = 'in progress'
+
+    # Reset the current player
     current_player = 'X'
+
+    # Redirect to the home page
     return redirect(url_for('index'))
 
 
+# Define the function to check if a player has won
+def check_winner(player):
+    for winning_combination in winning_combinations:
+        if all(board[i][j] == player for i, j in winning_combination):
+            return True
+    return False
+
+
+# Define the function to check if the game is a draw
+def check_draw():
+    for i in range(3):
+        if board[i][0] != '-' and board[i][1] != '-' and board[i][2] != '-':
+            return False
+        if board[0][i] != '-' and board[1][i] != '-' and board[2][i] != '-':
+            return False
+        if board[i][0] != '-' and board[1][1] != '-' and board[2][2] != '-':
+            return False
+        if board[0][2] != '-' and board[1][1] != '-' and board[2][0] != '-':
+            return False
+    return True
+
+
 # Define the function to get the computer's move
-def get_computer_move(board):
-    global winning_combinations
-
-    # Check if the computer can win in one move
-    for i in range(len(winning_combinations)):
-        if board[winning_combinations[i][0]][winning_combinations[i][1]] == 'O' and board[winning_combinations[i][1]][winning_combinations[i][2]] == 'O' and board[winning_combinations[i][0]][winning_combinations[i][2]] == '-':
-            return winning_combinations[i][0], winning_combinations[i][2]
-        if board[winning_combinations[i][0]][winning_combinations[i][1]] == 'O' and board[winning_combinations[i][0]][winning_combinations[i][2]] == 'O' and board[winning_combinations[i][1]][winning_combinations[i][2]] == '-':
-            return winning_combinations[i][1], winning_combinations[i][2]
-        if board[winning_combinations[i][1]][winning_combinations[i][2]] == 'O' and board[winning_combinations[i][0]][winning_combinations[i][2]] == 'O' and board[winning_combinations[i][0]][winning_combinations[i][1]] == '-':
-            return winning_combinations[i][0], winning_combinations[i][1]
-
-    # Check if the player can win in one move
-    for i in range(len(winning_combinations)):
-        if board[winning_combinations[i][0]][winning_combinations[i][1]] == 'X' and board[winning_combinations[i][1]][winning_combinations[i][2]] == 'X' and board[winning_combinations[i][0]][winning_combinations[i][2]] == '-':
-            return winning_combinations[i][0], winning_combinations[i][2]
-        if board[winning_combinations[i][0]][winning_combinations[i][1]] == 'X' and board[winning_combinations[i][0]][winning_combinations[i][2]] == 'X' and board[winning_combinations[i][1]][winning_combinations[i][2]] == '-':
-            return winning_combinations[i][1], winning_combinations[i][2]
-        if board[winning_combinations[i][1]][winning_combinations[i][2]] == 'X' and board[winning_combinations[i][0]][winning_combinations[i][2]] == 'X' and board[winning_combinations[i][0]][winning_combinations[i][1]] == '-':
-            return winning_combinations[i][0], winning_combinations[i][1]
-
-    # Check if the computer can make a move in the center of the board
-    if board[1][1] == '-':
-        return 1, 1
-
-    # Check if the computer can make a move in a corner of the board
-    for i in range(0, 3, 2):
-        for j in range(0, 3, 2):
+def get_computer_move():
+    for winning_combination in winning_combinations:
+        if board[winning_combination[0]][winning_combination[1]] == '-' and board[winning_combination[1]][winning_combination[2]] == '-' and board[winning_combination[2]][winning_combination[0]] == '-':
+            return winning_combination[0], winning_combination[1]
+        if board[winning_combination[0]][winning_combination[2]] == '-' and board[winning_combination[1]][winning_combination[0]] == '-' and board[winning_combination[2]][winning_combination[1]] == '-':
+            return winning_combination[0], winning_combination[2]
+        if board[winning_combination[1]][winning_combination[0]] == '-' and board[winning_combination[2]][winning_combination[1]] == '-' and board[winning_combination[0]][winning_combination[2]] == '-':
+            return winning_combination[1], winning_combination[0]
+        if board[winning_combination[1]][winning_combination[2]] == '-' and board[winning_combination[0]][winning_combination[1]] == '-' and board[winning_combination[2]][winning_combination[0]] == '-':
+            return winning_combination[1], winning_combination[2]
+        if board[winning_combination[2]][winning_combination[0]] == '-' and board[winning_combination[0]][winning_combination[2]] == '-' and board[winning_combination[1]][winning_combination[0]] == '-':
+            return winning_combination[2], winning_combination[0]
+        if board[winning_combination[2]][winning_combination[1]] == '-' and board[winning_combination[1]][winning_combination[2]] == '-' and board[winning_combination[0]][winning_combination[1]] == '-':
+            return winning_combination[2], winning_combination[1]
+    for i in range(3):
+        for j in range(3):
             if board[i][j] == '-':
                 return i, j
-
-    # Check if the computer can make a move on the edge of the board
-    for i in range(3):
-        if board[i][0] == '-':
-            return i, 0
-        if board[i][2] == '-':
-            return i, 2
-        if board[0][i] == '-':
-            return 0, i
-        if board[2][i] == '-':
-            return 2, i
-
-    # Return a random move
-    return random.randint(0, 2), random.randint(0, 2)
 
 
 # Run the app
