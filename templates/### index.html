@@ -4,11 +4,17 @@
 <html>
 <head>
 <title>Tic Tac Toe</title>
-<link rel="stylesheet" href="style.css">
 </head>
 <body>
 <h1>Tic Tac Toe</h1>
-<a href="/game">Start a new game</a>
+<form action="/game" method="post">
+<label for="difficulty">Difficulty:</label>
+<select name="difficulty">
+<option value="easy">Easy</option>
+<option value="hard">Hard</option>
+</select>
+<input type="submit" value="Start Game">
+</form>
 </body>
 </html>
 
