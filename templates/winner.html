@@ -1,0 +1,119 @@
+
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>Tic Tac Toe</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<h1>Tic Tac Toe</h1>
+<div id="winner"></div>
+<button id="reset">Reset</button>
+<script src="script.js"></script>
+</body>
+</html>
+
+
+style.css
+
+css
+body {
+font-family: sans-serif;
+}
+
+#board {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+grid-gap: 10px;
+}
+
+.square {
+width: 100px;
+height: 100px;
+border: 1px solid black;
+text-align: center;
+font-size: 50px;
+}
+
+#status {
+margin-top: 10px;
+font-size: 20px;
+}
+
+#reset {
+margin-top: 10px;
+padding: 5px 10px;
+background-color: #000;
+color: #fff;
+border: 1px solid black;
+cursor: pointer;
+}
+
+
+script.js
+
+javascript
+const squares = document.querySelectorAll('.square');
+const status = document.getElementById('status');
+const reset = document.getElementById('reset');
+
+let board = ['', '', '', '', '', '', '', '', ''];
+let currentPlayer = 'X';
+
+function checkWinner() {
+const winningCombinations = [
+[0, 1, 2],
+[3, 4, 5],
+[6, 7, 8],
+[0, 3, 6],
+[1, 4, 7],
+[2, 5, 8],
+[0, 4, 8],
+[2, 4, 6],
+];
+
+for (let i = 0; i < winningCombinations.length; i++) {
+const [a, b, c] = winningCombinations[i];
+if (board[a] === board[b] && board[b] === board[c] && board[a] !== '') {
+return board[a];
+}
+}
+
+return null;
+}
+
+function updateStatus() {
+const winner = checkWinner();
+if (winner) {
+status.innerHTML = `${winner} has won!`;
+} else {
+status.innerHTML = `It's ${currentPlayer}'s turn.`;
+}
+}
+
+function makeMove(square) {
+const index = parseInt(square.id);
+if (board[index] === '') {
+board[index] = currentPlayer;
+square.innerHTML = currentPlayer;
+updateStatus();
+currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+}
+}
+
+squares.forEach(square => {
+square.addEventListener('click', () => {
+makeMove(square);
+});
+});
+
+reset.addEventListener('click', () => {
+board = ['', '', '', '', '', '', '', '', ''];
+currentPlayer = 'X';
+squares.forEach(square => {
+square.innerHTML = '';
+});
+updateStatus();
+});
+
