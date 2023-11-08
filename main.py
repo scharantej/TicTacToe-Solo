@@ -3,111 +3,130 @@ from flask import Flask, render_template, request
 
 app = Flask(__name__)
 
-# Define the game board
-board = [['-', '-', '-'],
-         ['-', '-', '-'],
-         ['-', '-', '-']]
+@app.route('/')
+def index():
+  return render_template('index.html')
 
-# Define the possible winning combinations
-winning_combinations = [[0, 1, 2], [3, 4, 5], [6, 7, 8],
-                       [0, 3, 6], [1, 4, 7], [2, 5, 8],
-                       [0, 4, 8], [2, 4, 6]]
+@app.route('/game', methods=['POST'])
+def game():
+  # Get the user's move.
+  move = request.form.get('move')
 
-# Define the computer player
-computer_player = 'X'
+  # Make the computer's move.
+  computer_move = get_computer_move()
 
-# Define the human player
-human_player = 'O'
+  # Check if the game is over.
+  winner = check_winner()
 
-# Define the current player
-current_player = human_player
+  # Render the game page.
+  return render_template('game.html', move=move, computer_move=computer_move, winner=winner)
 
-# Define the game state
-game_state = 'in progress'
+@app.route('/winner', methods=['POST'])
+def winner():
+  # Get the winner.
+  winner = request.form.get('winner')
 
+  # Render the winner page.
+  return render_template('winner.html', winner=winner)
+
+def get_computer_move():
+  # Get the available moves.
+  available_moves = get_available_moves()
+
+  # Choose a random move.
+  computer_move = random.choice(available_moves)
+
+  return computer_move
+
+def check_winner():
+  # Check if there is a winner.
+  winner = None
+
+  # Check if there is a row with three of the same symbol.
+  for row in range(3):
+    if board[row][0] == board[row][1] == board[row][2]:
+      winner = board[row][0]
+
+  # Check if there is a column with three of the same symbol.
+  for col in range(3):
+    if board[0][col] == board[1][col] == board[2][col]:
+      winner = board[0][col]
+
+  # Check if there is a diagonal with three of the same symbol.
+  if board[0][0] == board[1][1] == board[2][2]:
+    winner = board[0][0]
+  elif board[0][2] == board[1][1] == board[2][0]:
+    winner = board[0][2]
+
+  return winner
+
+if __name__ == '__main__':
+  app.run()
+
+
+main.py
+
+
+from flask import Flask, render_template, request
+
+app = Flask(__name__)
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+  return render_template('index.html')
 
-
-@app.route('/game', methods=['GET', 'POST'])
+@app.route('/game', methods=['POST'])
 def game():
-    # Get the user's move
-    if request.method == 'POST':
-        move = request.form.get('move')
-        board[int(move[0])][int(move[1])] = human_player
+  # Get the user's move.
+  move = request.form.get('move')
 
-        # Check if the human player has won
-        if check_winner(board, human_player):
-            game_state = 'human_won'
-            return render_template('winner.html', winner=human_player)
+  # Make the computer's move.
+  computer_move = get_computer_move()
 
-        # Check if the game is a draw
-        if check_draw(board):
-            game_state = 'draw'
-            return render_template('winner.html', winner='draw')
+  # Check if the game is over.
+  winner = check_winner()
 
-        # Make the computer's move
-        computer_move = get_computer_move(board)
-        board[computer_move[0]][computer_move[1]] = computer_player
+  # Render the game page.
+  return render_template('game.html', move=move, computer_move=computer_move, winner=winner)
 
-        # Check if the computer player has won
-        if check_winner(board, computer_player):
-            game_state = 'computer_won'
-            return render_template('winner.html', winner=computer_player)
-
-        # Check if the game is a draw
-        if check_draw(board):
-            game_state = 'draw'
-            return render_template('winner.html', winner='draw')
-
-    # Render the game board
-    return render_template('game.html', board=board, current_player=current_player)
-
-
-@app.route('/winner')
+@app.route('/winner', methods=['POST'])
 def winner():
-    return render_template('winner.html', winner=game_state)
+  # Get the winner.
+  winner = request.form.get('winner')
 
+  # Render the winner page.
+  return render_template('winner.html', winner=winner)
 
-def check_winner(board, player):
-    for winning_combination in winning_combinations:
-        if all(board[i][j] == player for i, j in winning_combination):
-            return True
-    return False
+def get_computer_move():
+  # Get the available moves.
+  available_moves = get_available_moves()
 
+  # Choose a random move.
+  computer_move = random.choice(available_moves)
 
-def check_draw(board):
-    for i in range(3):
-        if board[i][0] != '-' and board[i][1] != '-' and board[i][2] != '-':
-            return False
-        if board[0][i] != '-' and board[1][i] != '-' and board[2][i] != '-':
-            return False
-        if board[i][0] != '-' and board[1][1] != '-' and board[2][2] != '-':
-            return False
-        if board[0][2] != '-' and board[1][1] != '-' and board[2][0] != '-':
-            return False
-    return True
+  return computer_move
 
+def check_winner():
+  # Check if there is a winner.
+  winner = None
 
-def get_computer_move(board):
-    for winning_combination in winning_combinations:
-        if all(board[i][j] == computer_player for i, j in winning_combination):
-            return winning_combination[0], winning_combination[1]
-        if all(board[i][j] == human_player for i, j in winning_combination):
-            return winning_combination[0], winning_combination[1]
-    for i in range(3):
-        if board[i][0] == '-' and board[i][1] == '-' and board[i][2] == '-':
-            return i, 0
-        if board[0][i] == '-' and board[1][i] == '-' and board[2][i] == '-':
-            return 0, i
-        if board[i][0] == '-' and board[1][1] == '-' and board[2][2] == '-':
-            return i, i
-        if board[0][2] == '-' and board[1][1] == '-' and board[2][0] == '-':
-            return i, 2
-    return 1, 1
+  # Check if there is a row with three of the same symbol.
+  for row in range(3):
+    if board[row][0] == board[row][1] == board[row][2]:
+      winner = board[row][0]
 
+  # Check if there is a column with three of the same symbol.
+  for col in range(3):
+    if board[0][col] == board[1][col] == board[2][col]:
+      winner = board[0][col]
+
+  # Check if there is a diagonal with three of the same symbol.
+  if board[0][0] == board[1][1] == board[2][2]:
+    winner = board[0][0]
+  elif board[0][2] == board[1][1] == board[2][0]:
+    winner = board[0][2]
+
+  return winner
 
 if __name__ == '__main__':
-    app.run(debug=True)
+  app.run()
