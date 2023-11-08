@@ -4,17 +4,39 @@
 <html>
 <head>
 <title>Tic Tac Toe</title>
-<link rel="stylesheet" href="/static/style.css">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 <h1>Tic Tac Toe</h1>
-<div id="winner">
 <p>The winner is {{ winner }}!</p>
-</div>
-<div id="controls">
-<button id="new-game">New Game</button>
-</div>
-<script src="/static/script.js"></script>
+<a href="/game">Start a new game</a>
 </body>
 </html>
+
+
+### style.css
+
+css
+body {
+font-family: sans-serif;
+}
+
+h1 {
+font-size: 36px;
+margin-bottom: 16px;
+}
+
+#board {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+grid-gap: 16px;
+}
+
+.cell {
+width: 100px;
+height: 100px;
+border: 1px solid black;
+text-align: center;
+font-size: 36px;
+}
 
