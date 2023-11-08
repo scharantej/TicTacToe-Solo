@@ -1,5 +1,4 @@
 
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -9,19 +8,27 @@
 <body>
 <h1>Tic Tac Toe</h1>
 <div id="board">
-<div class="square" id="0"></div>
-<div class="square" id="1"></div>
-<div class="square" id="2"></div>
-<div class="square" id="3"></div>
-<div class="square" id="4"></div>
-<div class="square" id="5"></div>
-<div class="square" id="6"></div>
-<div class="square" id="7"></div>
-<div class="square" id="8"></div>
+<table>
+<tr>
+<td><a href="/game?move=00">{{ board[0][0] }}</a></td>
+<td><a href="/game?move=01">{{ board[0][1] }}</a></td>
+<td><a href="/game?move=02">{{ board[0][2] }}</a></td>
+</tr>
+<tr>
+<td><a href="/game?move=10">{{ board[1][0] }}</a></td>
+<td><a href="/game?move=11">{{ board[1][1] }}</a></td>
+<td><a href="/game?move=12">{{ board[1][2] }}</a></td>
+</tr>
+<tr>
+<td><a href="/game?move=20">{{ board[2][0] }}</a></td>
+<td><a href="/game?move=21">{{ board[2][1] }}</a></td>
+<td><a href="/game?move=22">{{ board[2][2] }}</a></td>
+</tr>
+</table>
 </div>
-<div id="status"></div>
-<button id="reset">Reset</button>
-<script src="script.js"></script>
+<p>Current player: {{ current_player }}</p>
+<p>Game state: {{ game_state }}</p>
+<a href="/reset">Reset game</a>
 </body>
 </html>
 
