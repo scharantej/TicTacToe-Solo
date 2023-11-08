@@ -1,0 +1,52 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>Tic Tac Toe</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<h1>Tic Tac Toe</h1>
+<p>Game over!</p>
+<p>The winner is: {{ game_state }}</p>
+<a href="/reset">Reset game</a>
+</body>
+</html>
+
+
+style.css
+css
+body {
+font-family: sans-serif;
+margin: 0;
+}
+
+h1 {
+text-align: center;
+}
+
+#board {
+margin: 0 auto;
+width: 300px;
+}
+
+table {
+border-collapse: collapse;
+width: 100%;
+}
+
+td {
+border: 1px solid black;
+padding: 10px;
+text-align: center;
+}
+
+a {
+color: black;
+text-decoration: none;
+}
+
+a:hover {
+text-decoration: underline;
+}
+
