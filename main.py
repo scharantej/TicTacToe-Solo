@@ -1,80 +1,243 @@
  
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request
 
 app = Flask(__name__)
 
-# Routes
 @app.route('/')
 def index():
-  return render_template('index.html')
+    return render_template('index.html')
 
-@app.route('/game')
+@app.route('/game', methods=['POST'])
 def game():
-  return render_template('game.html')
+    # Get the user's move
+    move = request.form.get('move')
 
-@app.route('/winner/<winner>')
-def winner(winner):
-  return render_template('winner.html', winner=winner)
+    # Make the computer's move
+    computer_move = get_computer_move(move)
 
-@app.route('/tie')
-def tie():
-  return render_template('tie.html')
+    # Check if the game is over
+    winner = check_winner(move, computer_move)
 
-@app.route('/move', methods=['POST'])
-def move():
-  # Get the move from the request
-  move = request.form.get('move')
+    # Render the game page
+    return render_template('game.html', move=move, computer_move=computer_move, winner=winner)
 
-  # Update the game state
+@app.route('/winner', methods=['POST'])
+def winner():
+    # Get the winner
+    winner = request.form.get('winner')
 
-  # Check if the game has a winner
-  winner = check_winner()
+    # Render the winner page
+    return render_template('winner.html', winner=winner)
 
-  # Check if the game is a tie
-  tie = check_tie()
+def get_computer_move(move):
+    # Get the available moves
+    available_moves = get_available_moves(move)
 
-  # Redirect to the appropriate page
-  if winner:
-    return redirect(url_for('winner', winner=winner))
-  elif tie:
-    return redirect(url_for('tie'))
-  else:
-    return redirect(url_for('game'))
+    # Choose a random move
+    computer_move = random.choice(available_moves)
 
-@app.route('/checkWinner', methods=['POST'])
-def check_winner():
-  # Get the game state from the request
-  game_state = request.form.get('game_state')
+    return computer_move
 
-  # Check if there is a winner
-  winner = None
-  for row in range(3):
-    if game_state[row][0] == game_state[row][1] == game_state[row][2] != ' ':
-      winner = game_state[row][0]
-    elif game_state[0][row] == game_state[1][row] == game_state[2][row] != ' ':
-      winner = game_state[0][row]
-    elif game_state[row][0] == game_state[1][1] == game_state[2][2] != ' ':
-      winner = game_state[row][0]
-    elif game_state[2][0] == game_state[1][1] == game_state[0][2] != ' ':
-      winner = game_state[2][0]
+def check_winner(move, computer_move):
+    # Check if the user has won
+    if move == 'X' and computer_move == 'O':
+        winner = 'X'
+    elif move == 'O' and computer_move == 'X':
+        winner = 'O'
 
-  # Return the winner
-  return winner
+    # Check if the computer has won
+    elif computer_move == 'X' and move == 'O':
+        winner = 'X'
+    elif computer_move == 'O' and move == 'X':
+        winner = 'O'
 
-@app.route('/checkTie', methods=['POST'])
-def check_tie():
-  # Get the game state from the request
-  game_state = request.form.get('game_state')
+    # Check if the game is a draw
+    elif move == computer_move:
+        winner = 'Draw'
 
-  # Check if the game is a tie
-  tie = True
-  for row in range(3):
-    if game_state[row][0] != ' ' or game_state[row][1] != ' ' or game_state[row][2] != ' ':
-      tie = False
-      break
+    # Otherwise, the game is still in progress
+    else:
+        winner = None
 
-  # Return the tie
-  return tie
+    return winner
+
+def get_available_moves(move):
+    # Get the available moves
+    available_moves = []
+    for i in range(3):
+        for j in range(3):
+            if board[i][j] == ' ':
+                available_moves.append((i, j))
+
+    return available_moves
 
 if __name__ == '__main__':
-  app.run(debug=True)
+    app.run(debug=True)
+
+
+HTML files:
+
+index.html:
+
+html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tic Tac Toe</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <h1>Tic Tac Toe</h1>
+    <div id="board">
+        <div class="cell" id="00"></div>
+        <div class="cell" id="01"></div>
+        <div class="cell" id="02"></div>
+        <div class="cell" id="10"></div>
+        <div class="cell" id="11"></div>
+        <div class="cell" id="12"></div>
+        <div class="cell" id="20"></div>
+        <div class="cell" id="21"></div>
+        <div class="cell" id="22"></div>
+    </div>
+    <form action="/game" method="post">
+        <input type="hidden" name="move" id="move">
+        <input type="submit" value="Make Move">
+    </form>
+</body>
+</html>
+
+
+game.html:
+
+html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tic Tac Toe</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <h1>Tic Tac Toe</h1>
+    <div id="board">
+        <div class="cell" id="00">{{ move }}</div>
+        <div class="cell" id="01">{{ computer_move }}</div>
+        <div class="cell" id="02"></div>
+        <div class="cell" id="10"></div>
+        <div class="cell" id="11"></div>
+        <div class="cell" id="12"></div>
+        <div class="cell" id="20"></div>
+        <div class="cell" id="21"></div>
+        <div class="cell" id="22"></div>
+    </div>
+    <form action="/winner" method="post">
+        <input type="hidden" name="winner" id="winner">
+        <input type="submit" value="Declare Winner">
+    </form>
+</body>
+</html>
+
+
+winner.html:
+
+html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tic Tac Toe</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <h1>Tic Tac Toe</h1>
+    <div id="winner">
+        {{ winner }}
+    </div>
+</body>
+</html>
+
+
+CSS file:
+
+style.css:
+
+css
+body {
+    font-family: sans-serif;
+}
+
+#board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-gap: 10px;
+}
+
+.cell {
+    width: 100px;
+    height: 100px;
+    border: 1px solid black;
+    text-align: center;
+    font-size: 50px;
+}
+
+
+JavaScript file:
+
+script.js:
+
+javascript
+// Get the board elements
+const cells = document.querySelectorAll('.cell');
+
+// Add event listeners to the board elements
+cells.forEach(cell => {
+    cell.addEventListener('click', () => {
+        // Get the cell's ID
+        const id = cell.id;
+
+        // Make the move
+        makeMove(id);
+    });
+});
+
+// Make a move
+function makeMove(id) {
+    // Get the cell's value
+    const value = cells[id].innerHTML;
+
+    // Check if the cell is empty
+    if (value === '') {
+        // Set the cell's value to 'X'
+        cells[id].innerHTML = 'X';
+
+        // Make the computer's move
+        computerMove();
+    }
+}
+
+// Make the computer's move
+function computerMove() {
+    // Get the available moves
+    const availableMoves = getAvailableMoves();
+
+    // Choose a random move
+    const randomMove = availableMoves[Math.floor(Math.random() * availableMoves.length)];
+
+    // Make the move
+    cells[randomMove].innerHTML = 'O';
+}
+
+// Get the available moves
+function getAvailableMoves() {
+    const availableMoves = [];
+
+    // Loop through the cells
+    cells.forEach(cell => {
+        // Check if the cell is empty
+        if (cell.innerHTML === '') {
+            // Add the cell's ID to the list of available moves
+            availableMoves.push(cell.id);
+        }
+    });
+
+    // Return the list of available moves
+    return availableMoves;
+}
