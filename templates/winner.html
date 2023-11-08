@@ -9,7 +9,11 @@
 <body>
 <h1>Tic Tac Toe</h1>
 <div id="winner">
-{{ winner }}
+<p>The winner is {{ winner }}</p>
+</div>
+<div id="controls">
+<button id="new-game">New Game</button>
+<button id="quit">Quit</button>
 </div>
 </body>
 </html>
@@ -22,13 +26,13 @@ body {
 font-family: sans-serif;
 }
 
-#board {
+#game-board {
 display: grid;
 grid-template-columns: repeat(3, 1fr);
 grid-gap: 10px;
 }
 
-.cell {
+.square {
 width: 100px;
 height: 100px;
 border: 1px solid black;
@@ -36,65 +40,71 @@ text-align: center;
 font-size: 50px;
 }
 
+#controls {
+margin-top: 10px;
+}
+
+button {
+padding: 10px 20px;
+background-color: #000;
+color: #fff;
+border: 1px solid #000;
+cursor: pointer;
+}
+
 
 script.js
 
 javascript
-// Get the board elements
-const cells = document.querySelectorAll('.cell');
+const squares = document.querySelectorAll('.square');
+const newGameButton = document.getElementById('new-game');
+const quitButton = document.getElementById('quit');
 
-// Add event listeners to the board elements
-cells.forEach(cell => {
-cell.addEventListener('click', () => {
-// Get the cell's ID
-const id = cell.id;
+newGameButton.addEventListener('click', () => {
+// Start a new game.
+});
 
-// Make the move
-makeMove(id);
+quitButton.addEventListener('click', () => {
+// Quit the game.
+});
+
+squares.forEach(square => {
+square.addEventListener('click', () => {
+// Handle a click on a square.
 });
 });
 
-// Make a move
-function makeMove(id) {
-// Get the cell's value
-const value = cells[id].innerHTML;
 
-// Check if the cell is empty
-if (value === '') {
-// Set the cell's value to 'X'
-cells[id].innerHTML = 'X';
+app.py
 
-// Make the computer's move
-computerMove();
-}
-}
+python
+from flask import Flask, render_template, request
 
-// Make the computer's move
-function computerMove() {
-// Get the available moves
-const availableMoves = getAvailableMoves();
+app = Flask(__name__)
 
-// Choose a random move
-const randomMove = availableMoves[Math.floor(Math.random() * availableMoves.length)];
+@app.route('/', methods=['GET', 'POST'])
+def index():
+if request.method == 'POST':
+# Handle the POST request
+return render_template('game.html')
+else:
+# Handle the GET request
+return render_template('index.html')
 
-// Make the move
-cells[randomMove].innerHTML = 'O';
-}
+@app.route('/game', methods=['GET', 'POST'])
+def game():
+if request.method == 'POST':
+# Handle the POST request
+return render_template('winner.html')
+else:
+# Handle the GET request
+return render_template('game.html')
 
-// Get the available moves
-function getAvailableMoves() {
-const availableMoves = [];
+@app.route('/winner', methods=['GET'])
+def winner():
+# Handle the GET request
+return render_template('winner.html')
 
-// Loop through the cells
-cells.forEach(cell => {
-// Check if the cell is empty
-if (cell.innerHTML === '') {
-// Add the cell's ID to the list of available moves
-availableMoves.push(cell.id);
-}
-});
-
-// Return the list of available moves
-return availableMoves;
-}
+if __name__ == '__main__':
+app.run(debug=True)
 
