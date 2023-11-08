@@ -3,100 +3,210 @@ from flask import Flask, render_template, request
 
 app = Flask(__name__)
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/')
 def index():
-    if request.method == 'POST':
-        difficulty = request.form.get('difficulty')
-        return redirect(url_for('game', difficulty=difficulty))
     return render_template('index.html')
 
-@app.route('/game', methods=['GET', 'POST'])
+@app.route('/game', methods=['POST'])
 def game():
-    difficulty = request.args.get('difficulty')
-    if request.method == 'POST':
-        move = request.form.get('move')
-        # Make the computer's move
-        computer_move = make_computer_move(difficulty)
-        # Check if the game is over
-        winner = check_winner()
-        if winner:
-            return redirect(url_for('winner', winner=winner))
-        # Render the game board
-        return render_template('game.html', difficulty=difficulty, board=board, move=move, computer_move=computer_move)
-    return render_template('game.html', difficulty=difficulty, board=board)
+    # Get the user's move from the request.
+    move = request.form.get('move')
 
-@app.route('/winner', methods=['GET'])
+    # Make the computer's move.
+    computer_move = get_computer_move(move)
+
+    # Check if the game is over.
+    winner = get_winner(move, computer_move)
+
+    # Render the game page with the updated game state.
+    return render_template('game.html', move=move, computer_move=computer_move, winner=winner)
+
+@app.route('/winner', methods=['POST'])
 def winner():
-    winner = request.args.get('winner')
+    # Get the winner from the request.
+    winner = request.form.get('winner')
+
+    # Render the winner page with the winner's name.
     return render_template('winner.html', winner=winner)
 
-def make_computer_move(difficulty):
-    # Choose a random move
-    if difficulty == 'easy':
-        move = random.choice(available_moves())
-    # Choose the best move
-    elif difficulty == 'hard':
-        move = minimax(board, depth=3)
-    return move
-
-def check_winner():
-    # Check if there is a winner
-    for row in range(3):
-        if board[row][0] == board[row][1] == board[row][2] != ' ':
-            return board[row][0]
-        if board[0][row] == board[1][row] == board[2][row] != ' ':
-            return board[0][row]
-        if board[row][0] == board[1][1] == board[2][2] != ' ':
-            return board[row][0]
-        if board[2][0] == board[1][1] == board[0][2] != ' ':
-            return board[2][0]
-    return None
-
-def available_moves():
-    # Return a list of available moves
-    moves = []
-    for row in range(3):
-        for col in range(3):
-            if board[row][col] == ' ':
-                moves.append((row, col))
-    return moves
-
-def minimax(board, depth, alpha=-float('inf'), beta=float('inf')):
-    # Check if the game is over
-    winner = check_winner()
-    if winner:
-        if winner == 'X':
-            return -1
-        elif winner == 'O':
-            return 1
-        else:
-            return 0
-
-    # Check if the current player is maximizing or minimizing
-    if depth % 2 == 0:
-        # Maximizing player
-        best_score = -float('inf')
-        for move in available_moves():
-            board[move[0]][move[1]] = 'X'
-            score = minimax(board, depth + 1, alpha, beta)
-            board[move[0]][move[1]] = ' '
-            best_score = max(best_score, score)
-            alpha = max(alpha, best_score)
-            if beta <= alpha:
-                break
-        return best_score
-    else:
-        # Minimizing player
-        best_score = float('inf')
-        for move in available_moves():
-            board[move[0]][move[1]] = 'O'
-            score = minimax(board, depth + 1, alpha, beta)
-            board[move[0]][move[1]] = ' '
-            best_score = min(best_score, score)
-            beta = min(beta, best_score)
-            if beta <= alpha:
-                break
-        return best_score
-
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
+
+
+html code
+
+html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tic Tac Toe</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <h1>Tic Tac Toe</h1>
+    <div id="game-board">
+        <div class="square" data-move="1"></div>
+        <div class="square" data-move="2"></div>
+        <div class="square" data-move="3"></div>
+        <div class="square" data-move="4"></div>
+        <div class="square" data-move="5"></div>
+        <div class="square" data-move="6"></div>
+        <div class="square" data-move="7"></div>
+        <div class="square" data-move="8"></div>
+        <div class="square" data-move="9"></div>
+    </div>
+    <div id="controls">
+        <button id="new-game">New Game</button>
+    </div>
+    <script src="/static/js/script.js"></script>
+</body>
+</html>
+
+
+html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tic Tac Toe</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <h1>Tic Tac Toe</h1>
+    <div id="game-board">
+        <div class="square" data-move="1">{{ move }}</div>
+        <div class="square" data-move="2">{{ computer_move }}</div>
+        <div class="square" data-move="3"></div>
+        <div class="square" data-move="4"></div>
+        <div class="square" data-move="5"></div>
+        <div class="square" data-move="6"></div>
+        <div class="square" data-move="7"></div>
+        <div class="square" data-move="8"></div>
+        <div class="square" data-move="9"></div>
+    </div>
+    <div id="controls">
+        <button id="new-game">New Game</button>
+    </div>
+    <script src="/static/js/script.js"></script>
+</body>
+</html>
+
+
+html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tic Tac Toe</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <h1>Tic Tac Toe</h1>
+    <div id="winner">
+        {{ winner }} has won!
+    </div>
+    <div id="controls">
+        <button id="new-game">New Game</button>
+    </div>
+    <script src="/static/js/script.js"></script>
+</body>
+</html>
+
+
+css
+body {
+    font-family: sans-serif;
+}
+
+#game-board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-gap: 10px;
+}
+
+.square {
+    width: 100px;
+    height: 100px;
+    border: 1px solid black;
+    text-align: center;
+    font-size: 30px;
+}
+
+#controls {
+    text-align: center;
+}
+
+#new-game {
+    padding: 10px 20px;
+    background-color: #000;
+    color: #fff;
+    border: 1px solid #000;
+    cursor: pointer;
+}
+
+
+javascript
+// Get the game board element.
+const gameBoard = document.getElementById('game-board');
+
+// Get the squares on the game board.
+const squares = gameBoard.querySelectorAll('.square');
+
+// Add a click event listener to each square.
+squares.forEach(square => {
+    square.addEventListener('click', () => {
+        // Get the move number for the square.
+        const move = square.dataset.move;
+
+        // Make a request to the server to make the move.
+        fetch('/game', {
+            method: 'POST',
+            body: JSON.stringify({ move }),
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Update the game board with the new state.
+            square.innerHTML = data.move;
+            gameBoard.querySelector(`[data-move="${data.computer_move}"]`).innerHTML = data.computer_move;
+
+            // Check if the game is over.
+            if (data.winner) {
+                // Display the winner.
+                alert(`${data.winner} has won!`);
+
+                // Reset the game.
+                resetGame();
+            }
+        });
+    });
+});
+
+// Add a click event listener to the new game button.
+document.getElementById('new-game').addEventListener('click', () => {
+    // Reset the game.
+    resetGame();
+});
+
+// Reset the game.
+function resetGame() {
+    // Clear the game board.
+    squares.forEach(square => {
+        square.innerHTML = '';
+    });
+
+    // Make a request to the server to start a new game.
+    fetch('/game', {
+        method: 'POST',
+        body: JSON.stringify({}),
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Update the game board with the new state.
+        square.innerHTML = data.move;
+        gameBoard.querySelector(`[data-move="${data.computer_move}"]`).innerHTML = data.computer_move;
+    });
+}
