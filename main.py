@@ -13,125 +13,119 @@ winning_combinations = [[0, 1, 2], [3, 4, 5], [6, 7, 8],
                        [0, 3, 6], [1, 4, 7], [2, 5, 8],
                        [0, 4, 8], [2, 4, 6]]
 
-# Define the computer's level of difficulty
-difficulty = 'easy'
+# Define the computer player
+computer_player = 'O'
 
-# Start a new game
-def new_game():
-    global board
-    board = [['-', '-', '-'],
-             ['-', '-', '-'],
-             ['-', '-', '-']]
+# Define the human player
+human_player = 'X'
 
-# Check for a winner
-def check_winner():
-    for winning_combination in winning_combinations:
-        if all(board[i][j] == 'X' for i, j in winning_combination):
-            return 'X'
-        elif all(board[i][j] == 'O' for i, j in winning_combination):
-            return 'O'
-    return None
+# Define the current player
+current_player = human_player
 
-# Make a move
-def make_move(player, position):
-    board[position[0]][position[1]] = player
 
-# Get the computer's next move
-def get_computer_move():
-    if difficulty == 'easy':
-        # Choose a random move
-        while True:
-            position = (random.randint(0, 2), random.randint(0, 2))
-            if board[position[0]][position[1]] == '-':
-                break
-    elif difficulty == 'hard':
-        # Choose the move that gives the computer the best chance of winning
-        best_move = None
-        best_score = -1000
-        for position in range(9):
-            if board[position[0]][position[1]] == '-':
-                board[position[0]][position[1]] = 'O'
-                score = minimax(False)
-                board[position[0]][position[1]] = '-'
-                if score > best_score:
-                    best_move = position
-                    best_score = score
-        return best_move
-
-# Minimax algorithm
-def minimax(maximizing):
-    winner = check_winner()
-    if winner == 'X':
-        return -1
-    elif winner == 'O':
-        return 1
-    elif all('-' not in row for row in board):
-        return 0
-
-    if maximizing:
-        best_score = -1000
-        for position in range(9):
-            if board[position[0]][position[1]] == '-':
-                board[position[0]][position[1]] = 'O'
-                score = minimax(False)
-                board[position[0]][position[1]] = '-'
-                if score > best_score:
-                    best_score = score
-        return best_score
-    else:
-        best_score = 1000
-        for position in range(9):
-            if board[position[0]][position[1]] == '-':
-                board[position[0]][position[1]] = 'X'
-                score = minimax(True)
-                board[position[0]][position[1]] = '-'
-                if score < best_score:
-                    best_score = score
-        return best_score
-
-# Routes
 @app.route('/')
 def index():
     return render_template('index.html')
 
-@app.route('/game', methods=['GET', 'POST'])
+
+@app.route('/game', methods=['POST'])
 def game():
-    if request.method == 'POST':
-        # Get the player's move
-        position = (int(request.form['row']), int(request.form['column']))
+    # Get the move from the human player
+    human_move = request.form.get('move')
 
-        # Make the player's move
-        make_move('X', position)
+    # Update the game board
+    board[int(human_move[0])][int(human_move[1])] = human_player
 
-        # Check for a winner
-        winner = check_winner()
+    # Check if the human player has won
+    if has_won(human_player):
+        return redirect(url_for('winner'))
 
-        # If there is a winner, redirect to the winner page
-        if winner:
-            return redirect(url_for('winner', winner=winner))
+    # Check if the game is a tie
+    if is_tie():
+        return redirect(url_for('tie'))
 
-        # If there is no winner, make the computer's move
-        position = get_computer_move()
-        make_move('O', position)
+    # Get the move from the computer player
+    computer_move = get_computer_move()
 
-        # Check for a winner
-        winner = check_winner()
+    # Update the game board
+    board[int(computer_move[0])][int(computer_move[1])] = computer_player
 
-        # If there is a winner, redirect to the winner page
-        if winner:
-            return redirect(url_for('winner', winner=winner))
+    # Check if the computer player has won
+    if has_won(computer_player):
+        return redirect(url_for('winner'))
 
+    # Check if the game is a tie
+    if is_tie():
+        return redirect(url_for('tie'))
+
+    # Return the updated game board
     return render_template('game.html', board=board)
 
-@app.route('/winner', methods=['GET'])
-def winner():
-    winner = request.args.get('winner')
-    return render_template('winner.html', winner=winner)
 
-@app.route('/reset', methods=['GET'])
+@app.route('/winner')
+def winner():
+    return render_template('winner.html', winner=current_player)
+
+
+@app.route('/tie')
+def tie():
+    return render_template('tie.html')
+
+
+@app.route('/reset')
 def reset():
-    new_game()
+    # Reset the game board
+    board = [['-', '-', '-'],
+             ['-', '-', '-'],
+             ['-', '-', '-']]
+
+    # Reset the current player
+    current_player = human_player
+
+    # Redirect to the home page
     return redirect(url_for('index'))
+
+
+def has_won(player):
+    # Check if the player has won
+    for winning_combination in winning_combinations:
+        if all(board[i][j] == player for i, j in winning_combination):
+            return True
+    return False
+
+
+def is_tie():
+    # Check if the game is a tie
+    for i in range(3):
+        if board[i][0] != '-' and board[i][1] != '-' and board[i][2] != '-':
+            return False
+        if board[0][i] != '-' and board[1][i] != '-' and board[2][i] != '-':
+            return False
+        if board[i][0] != '-' and board[1][1] != '-' and board[2][2] != '-':
+            return False
+        if board[0][2] != '-' and board[1][1] != '-' and board[2][0] != '-':
+            return False
+    return True
+
+
+def get_computer_move():
+    # Get the computer's move
+    for winning_combination in winning_combinations:
+        if all(board[i][j] == computer_player for i, j in winning_combination):
+            return winning_combination[0], winning_combination[1]
+        if all(board[i][j] == human_player for i, j in winning_combination):
+            return winning_combination[0], winning_combination[1]
+    for i in range(3):
+        if board[i][0] == '-' and board[i][1] == '-' and board[i][2] == '-':
+            return i, 0
+        if board[0][i] == '-' and board[1][i] == '-' and board[2][i] == '-':
+            return 0, i
+        if board[i][0] == '-' and board[1][1] == '-' and board[2][2] == '-':
+            return i, i
+        if board[0][2] == '-' and board[1][1] == '-' and board[2][0] == '-':
+            return i, 2
+    return 1, 1
+
 
 if __name__ == '__main__':
     app.run(debug=True)
