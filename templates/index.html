@@ -4,11 +4,25 @@
 <html>
 <head>
 <title>Tic Tac Toe</title>
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
 <h1>Tic Tac Toe</h1>
-<a href="/game">Start Game</a>
+<div id="board">
+<div class="cell" id="00"></div>
+<div class="cell" id="01"></div>
+<div class="cell" id="02"></div>
+<div class="cell" id="10"></div>
+<div class="cell" id="11"></div>
+<div class="cell" id="12"></div>
+<div class="cell" id="20"></div>
+<div class="cell" id="21"></div>
+<div class="cell" id="22"></div>
+</div>
+<form action="/game" method="post">
+<input type="hidden" name="move" id="move">
+<input type="submit" value="Make Move">
+</form>
 </body>
 </html>
 
