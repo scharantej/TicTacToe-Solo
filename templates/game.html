@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -8,27 +9,21 @@
 <body>
 <h1>Tic Tac Toe</h1>
 <div id="board">
-<table>
-<tr>
-<td><a href="/game?move=00">{{ board[0][0] }}</a></td>
-<td><a href="/game?move=01">{{ board[0][1] }}</a></td>
-<td><a href="/game?move=02">{{ board[0][2] }}</a></td>
-</tr>
-<tr>
-<td><a href="/game?move=10">{{ board[1][0] }}</a></td>
-<td><a href="/game?move=11">{{ board[1][1] }}</a></td>
-<td><a href="/game?move=12">{{ board[1][2] }}</a></td>
-</tr>
-<tr>
-<td><a href="/game?move=20">{{ board[2][0] }}</a></td>
-<td><a href="/game?move=21">{{ board[2][1] }}</a></td>
-<td><a href="/game?move=22">{{ board[2][2] }}</a></td>
-</tr>
-</table>
+<div class="square" data-row="0" data-col="0">{{ board[0][0] }}</div>
+<div class="square" data-row="0" data-col="1">{{ board[0][1] }}</div>
+<div class="square" data-row="0" data-col="2">{{ board[0][2] }}</div>
+<div class="square" data-row="1" data-col="0">{{ board[1][0] }}</div>
+<div class="square" data-row="1" data-col="1">{{ board[1][1] }}</div>
+<div class="square" data-row="1" data-col="2">{{ board[1][2] }}</div>
+<div class="square" data-row="2" data-col="0">{{ board[2][0] }}</div>
+<div class="square" data-row="2" data-col="1">{{ board[2][1] }}</div>
+<div class="square" data-row="2" data-col="2">{{ board[2][2] }}</div>
 </div>
+<div id="status">
 <p>Current player: {{ current_player }}</p>
-<p>Game state: {{ game_state }}</p>
-<a href="/reset">Reset game</a>
+<p>Winner: None</p>
+</div>
+<script src="script.js"></script>
 </body>
 </html>
 
