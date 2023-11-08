@@ -4,26 +4,23 @@
 <html>
 <head>
 <title>Tic Tac Toe</title>
-<link rel="stylesheet" href="style.css">
 </head>
 <body>
 <h1>Tic Tac Toe</h1>
-<div id="board">
-<div class="square" data-row="0" data-col="0">{{ board[0][0] }}</div>
-<div class="square" data-row="0" data-col="1">{{ board[0][1] }}</div>
-<div class="square" data-row="0" data-col="2">{{ board[0][2] }}</div>
-<div class="square" data-row="1" data-col="0">{{ board[1][0] }}</div>
-<div class="square" data-row="1" data-col="1">{{ board[1][1] }}</div>
-<div class="square" data-row="1" data-col="2">{{ board[1][2] }}</div>
-<div class="square" data-row="2" data-col="0">{{ board[2][0] }}</div>
-<div class="square" data-row="2" data-col="1">{{ board[2][1] }}</div>
-<div class="square" data-row="2" data-col="2">{{ board[2][2] }}</div>
-</div>
-<div id="status">
-<p>Current player: {{ current_player }}</p>
-<p>Winner: None</p>
-</div>
-<script src="script.js"></script>
+<table border="1">
+{% for row in board %}
+<tr>
+{% for cell in row %}
+<td>{{ cell }}</td>
+{% endfor %}
+</tr>
+{% endfor %}
+</table>
+<form action="/move" method="post">
+<input type="hidden" name="row" value="{{ row }}">
+<input type="hidden" name="column" value="{{ column }}">
+<input type="submit" value="Make move">
+</form>
 </body>
 </html>
 
