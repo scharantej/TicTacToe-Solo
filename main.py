@@ -21,9 +21,9 @@ def game():
         winner = check_winner()
         if winner:
             return redirect(url_for('winner', winner=winner))
-        # Otherwise, continue the game
-        return render_template('game.html', difficulty=difficulty, move=move, computer_move=computer_move)
-    return render_template('game.html', difficulty=difficulty)
+        # Render the game board
+        return render_template('game.html', difficulty=difficulty, board=board)
+    return render_template('game.html', difficulty=difficulty, board=board)
 
 @app.route('/winner', methods=['GET'])
 def winner():
@@ -31,12 +31,13 @@ def winner():
     return render_template('winner.html', winner=winner)
 
 def make_computer_move(difficulty):
-    # Choose a random move if the difficulty is easy
+    # Choose a random move
     if difficulty == 'easy':
-        return random.choice(['1', '2', '3', '4', '5', '6', '7', '8', '9'])
-    # Choose the best move if the difficulty is hard
+        move = random.choice(available_moves())
+    # Choose the best move
     elif difficulty == 'hard':
-        return '5'
+        move = minimax(board, depth=3)
+    return move
 
 def check_winner():
     # Check if there is a winner
@@ -49,8 +50,31 @@ def check_winner():
             return board[row][0]
         if board[2][0] == board[1][1] == board[0][2] != ' ':
             return board[2][0]
-    # Otherwise, return None
     return None
+
+def available_moves():
+    # Return a list of available moves
+    moves = []
+    for row in range(3):
+        for col in range(3):
+            if board[row][col] == ' ':
+                moves.append((row, col))
+    return moves
+
+def minimax(board, depth):
+    # Return the best move for the computer
+    if depth == 0 or check_winner():
+        return None
+    best_move = None
+    best_score = -float('inf')
+    for move in available_moves():
+        board[move[0]][move[1]] = 'O'
+        score = -minimax(board, depth-1)
+        board[move[0]][move[1]] = ' '
+        if score > best_score:
+            best_move = move
+            best_score = score
+    return best_move
 
 if __name__ == '__main__':
     app.run(debug=True)
