@@ -1,10 +1,10 @@
 
-
+html
 <!DOCTYPE html>
 <html>
 <head>
 <title>Tic Tac Toe</title>
-<link rel="stylesheet" href="/static/css/style.css">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 <h1>Tic Tac Toe</h1>
@@ -12,99 +12,9 @@
 <p>The winner is {{ winner }}</p>
 </div>
 <div id="controls">
-<button id="new-game">New Game</button>
-<button id="quit">Quit</button>
+<button id="play-again">Play Again</button>
 </div>
+<script src="script.js"></script>
 </body>
 </html>
-
-
-style.css
-
-css
-body {
-font-family: sans-serif;
-}
-
-#game-board {
-display: grid;
-grid-template-columns: repeat(3, 1fr);
-grid-gap: 10px;
-}
-
-.square {
-width: 100px;
-height: 100px;
-border: 1px solid black;
-text-align: center;
-font-size: 50px;
-}
-
-#controls {
-margin-top: 10px;
-}
-
-button {
-padding: 10px 20px;
-background-color: #000;
-color: #fff;
-border: 1px solid #000;
-cursor: pointer;
-}
-
-
-script.js
-
-javascript
-const squares = document.querySelectorAll('.square');
-const newGameButton = document.getElementById('new-game');
-const quitButton = document.getElementById('quit');
-
-newGameButton.addEventListener('click', () => {
-// Start a new game.
-});
-
-quitButton.addEventListener('click', () => {
-// Quit the game.
-});
-
-squares.forEach(square => {
-square.addEventListener('click', () => {
-// Handle a click on a square.
-});
-});
-
-
-app.py
-
-python
-from flask import Flask, render_template, request
-
-app = Flask(__name__)
-
-@app.route('/', methods=['GET', 'POST'])
-def index():
-if request.method == 'POST':
-# Handle the POST request
-return render_template('game.html')
-else:
-# Handle the GET request
-return render_template('index.html')
-
-@app.route('/game', methods=['GET', 'POST'])
-def game():
-if request.method == 'POST':
-# Handle the POST request
-return render_template('winner.html')
-else:
-# Handle the GET request
-return render_template('game.html')
-
-@app.route('/winner', methods=['GET'])
-def winner():
-# Handle the GET request
-return render_template('winner.html')
-
-if __name__ == '__main__':
-app.run(debug=True)
 
