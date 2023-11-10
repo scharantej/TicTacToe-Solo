@@ -3,61 +3,63 @@ from flask import Flask, render_template, request
 
 app = Flask(__name__)
 
-# Define the routes for the application
+# Routes
 @app.route('/')
 def index():
     return render_template('index.html')
 
-@app.route('/game', methods=['GET', 'POST'])
+@app.route('/game', methods=['POST'])
 def game():
-    if request.method == 'GET':
-        # Initialize the game state
-        game_state = {
-            'board': [['', '', ''], ['', '', ''], ['', '', '']],
-            'current_player': 'X',
-            'winner': None
-        }
-        return render_template('game.html', game_state=game_state)
-    elif request.method == 'POST':
-        # Handle the user's move
-        move = request.form.get('move')
-        game_state['board'][move[0]][move[1]] = game_state['current_player']
+    # Get the user's move
+    move = request.form.get('move')
 
-        # Check if the game is over
-        if check_winner(game_state['board']):
-            game_state['winner'] = check_winner(game_state['board'])
-            return render_template('winner.html', game_state=game_state)
+    # Make the computer's move
+    computer_move = get_computer_move(move)
 
-        # Switch to the next player
-        game_state['current_player'] = 'O' if game_state['current_player'] == 'X' else 'X'
+    # Check if the game is over
+    winner = check_winner(move, computer_move)
 
-        return render_template('game.html', game_state=game_state)
+    # Render the game board
+    return render_template('game.html', move=move, computer_move=computer_move, winner=winner)
 
-@app.route('/winner', methods=['GET'])
+@app.route('/winner', methods=['POST'])
 def winner():
-    game_state = request.args.get('game_state')
-    return render_template('winner.html', game_state=game_state)
+    # Get the winner
+    winner = request.form.get('winner')
 
-# Define the function to check for a winner
-def check_winner(board):
-    # Check for a winner in each row
-    for row in range(3):
-        if board[row][0] == board[row][1] == board[row][2] != '':
-            return board[row][0]
+    # Render the winner page
+    return render_template('winner.html', winner=winner)
 
-    # Check for a winner in each column
-    for col in range(3):
-        if board[0][col] == board[1][col] == board[2][col] != '':
-            return board[0][col]
+# Functions
+def get_computer_move(move):
+    # Get the computer's move
+    computer_move = random.choice(['X', 'O'])
 
-    # Check for a winner in each diagonal
-    if board[0][0] == board[1][1] == board[2][2] != '':
-        return board[0][0]
-    elif board[0][2] == board[1][1] == board[2][0] != '':
-        return board[0][2]
+    # Make sure the computer's move is not the same as the user's move
+    while computer_move == move:
+        computer_move = random.choice(['X', 'O'])
 
-    return None
+    return computer_move
 
-# Run the application
+def check_winner(move, computer_move):
+    # Check if the user has won
+    if move == 'X' and computer_move == 'O':
+        winner = 'X'
+    elif move == 'O' and computer_move == 'X':
+        winner = 'O'
+
+    # Check if the computer has won
+    elif computer_move == 'X' and move == 'O':
+        winner = 'X'
+    elif computer_move == 'O' and move == 'X':
+        winner = 'O'
+
+    # Check if the game is a tie
+    else:
+        winner = 'Tie'
+
+    return winner
+
+# Main
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
